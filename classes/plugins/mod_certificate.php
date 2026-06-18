@@ -167,6 +167,9 @@ class mod_certificate {
                         (object) ['id' => $course->id],
                         $userid
                     );
+
+                    // Add time archived for reporting.
+                    $issuedcerts[$ic]->timearchived = $config->timearchived;
                 }
 
                 // Archive records.

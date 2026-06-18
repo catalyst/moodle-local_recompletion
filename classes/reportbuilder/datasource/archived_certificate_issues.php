@@ -84,6 +84,7 @@ class archived_certificate_issues extends datasource {
             'certificate_issues:code',
             'certificate_issues:issueddate',
             'certificate_issues:printdate',
+            'certificate_issues:timearchived',
         ];
     }
 

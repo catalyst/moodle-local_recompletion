@@ -1098,5 +1098,138 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         // Recompletion savepoint reached.
         upgrade_plugin_savepoint(true, 2024090300, 'local', 'recompletion');
     }
+
+    if ($oldversion < 2026061800) {
+        // Define field course to be added to local_recompletion_ltia.
+        $table = new xmldb_table('local_recompletion_ltia');
+        $field = new xmldb_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timecreated');
+
+        // Conditionally launch add field course.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define timearchived field and index.
+        $field = new xmldb_field('timearchived', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
+        $fielddefault = new xmldb_field('timearchived', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null);
+        $index = new xmldb_index('timearchived', XMLDB_INDEX_NOTUNIQUE, ['timearchived']);
+
+        $existingtables = [
+            'local_recompletion_cc',
+            'local_recompletion_cc_cc',
+            'local_recompletion_cmc',
+            'local_recompletion_cmv',
+            'local_recompletion_qa',
+            'local_recompletion_qg',
+            'local_recompletion_sa',
+            'local_recompletion_ssv',
+            'local_recompletion_ltia',
+            'local_recompletion_qr',
+            'local_recompletion_qr_bool',
+            'local_recompletion_qr_date',
+            'local_recompletion_qr_m',
+            'local_recompletion_qr_other',
+            'local_recompletion_qr_rank',
+            'local_recompletion_qr_single',
+            'local_recompletion_qr_text',
+            'local_recompletion_cha',
+            'local_recompletion_ccert_is',
+            'local_recompletion_hvp',
+            'local_recompletion_h5p',
+            'local_recompletion_h5pr',
+            'local_recompletion_la',
+            'local_recompletion_lg',
+            'local_recompletion_lt',
+            'local_recompletion_lb',
+            'local_recompletion_lo',
+            'local_recompletion_hpa',
+            'local_recompletion_cert',
+        ];
+
+        foreach ($existingtables as $tablename) {
+            // Conditionally launch add field timearchived.
+            $table = new xmldb_table($tablename);
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+                // Now that the timearchived field has been added we can set the default to NULL.
+                $dbman->change_field_default($table, $fielddefault);
+            }
+
+            // Conditionally launch add index timearchived.
+            if (!$dbman->index_exists($table, $index)) {
+                $dbman->add_index($table, $index);
+            }
+        }
+
+        // Define table local_recompletion_archived to be created.
+        $table = new xmldb_table('local_recompletion_archived');
+
+        // Adding fields to table local_recompletion_archived.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timearchived', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table local_recompletion_archived.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
+
+        // Adding index to table local_recompletion_archived.
+        $table->add_index('timearchived', XMLDB_INDEX_NOTUNIQUE, ['timearchived']);
+
+        // Conditionally launch create table for local_recompletion_archived.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table local_recompletion_tci_archived to be created.
+        $table = new xmldb_table('local_recompletion_tci_archived');
+
+        // Adding fields to table local_recompletion_tci_archived.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('certissueid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timearchived', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table local_recompletion_tci_archived.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('certissueid', XMLDB_KEY_FOREIGN, ['certissueid'], 'tool_certificate_issues', ['id']);
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
+
+        // Adding index to table local_recompletion_tci_archived.
+        $table->add_index('timearchived', XMLDB_INDEX_NOTUNIQUE, ['timearchived']);
+
+        // Conditionally launch create table for local_recompletion_tci_archived.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table local_recompletion_grade_archived to be created.
+        $table = new xmldb_table('local_recompletion_grade_archived');
+
+        // Adding fields to table local_recompletion_grade_archived.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('gradehistid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timearchived', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table local_recompletion_grade_archived.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('gradehistid', XMLDB_KEY_FOREIGN, ['gradehistid'], 'grade_grades_history', ['id']);
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
+
+        // Adding index to table local_recompletion_grade_archived.
+        $table->add_index('timearchived', XMLDB_INDEX_NOTUNIQUE, ['timearchived']);
+
+        // Conditionally launch create table for local_recompletion_grade_archived.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2026061800, 'local', 'recompletion');
+    }
+
     return true;
 }

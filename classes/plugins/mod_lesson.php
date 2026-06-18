@@ -131,6 +131,7 @@ class mod_lesson {
                     if (!empty($records)) {
                         foreach ($records as $record) {
                             $record->course = $course->id;
+                            $record->timearchived = $config->timearchived;
                         }
                         $DB->insert_records($archivetable, $records);
                     }

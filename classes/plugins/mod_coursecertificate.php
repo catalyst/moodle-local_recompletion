@@ -149,21 +149,29 @@ class mod_coursecertificate {
                 'component' => 'mod_coursecertificate',
                 'userid' => $userid,
             ];
+            $records = $DB->get_records('tool_certificate_issues', $params);
 
             if ($config->archivecoursecertificate) {
                 // Archive all user's certificate within a given course.
-                $DB->execute(
-                    "UPDATE {tool_certificate_issues}
-                        SET archived = 1
-                      WHERE courseid = :courseid
-                            AND component = :component
-                            AND userid = :userid
-                            AND archived = 0",
-                    $params
-                );
+                foreach ($records as $record) {
+                    // If already archived nothing needs to be done and we don't store an archival record.
+                    if ($record->archived) {
+                        continue;
+                    }
+
+                    $record->archived = 1;
+                    $DB->update_record('tool_certificate_issues', $record);
+
+                    // Store a record of the archival.
+                    $archived = (object) [
+                        'certissueid' => $record->id,
+                        'timearchived' => $config->timearchived,
+                        'courseid' => $course->id,
+                    ];
+                    $DB->insert_record('local_recompletion_tci_archived', $archived);
+                }
             } else {
                 // Revoke all user's certificate within a given course.
-                $records = $DB->get_records('tool_certificate_issues', $params);
                 foreach ($records as $record) {
                     \tool_certificate\template::instance($record->templateid)->revoke_issue($record->id);
                 }

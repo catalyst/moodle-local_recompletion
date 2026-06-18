@@ -137,6 +137,7 @@ class mod_hvp {
                 $records = $DB->get_records_select('hvp_content_user_data', $selectsql, $params);
                 foreach ($records as $record) {
                     $record->course = $course->id;
+                    $record->timearchived = $config->timearchived;
                 }
                 $DB->insert_records('local_recompletion_hvp', $records);
             }

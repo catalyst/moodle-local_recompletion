@@ -52,6 +52,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'timestarted' => 'privacy:metadata:timestarted',
             'timecompleted' => 'privacy:metadata:timecompleted',
             'reaggregate' => 'privacy:metadata:reaggregate',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_cc');
 
         $collection->add_database_table('local_recompletion_cmc', [
@@ -61,12 +62,14 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'viewed' => 'privacy:metadata:viewed',
             'overrideby' => 'privacy:metadata:overrideby',
             'timemodified' => 'privacy:metadata:timemodified',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_cmc');
 
         $collection->add_database_table('local_recompletion_cmv', [
             'userid' => 'privacy:metadata:userid',
             'coursemoduleid' => 'privacy:metadata:coursemoduleid',
             'timemodified' => 'privacy:metadata:timemodified',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_cmv');
 
         $collection->add_database_table('local_recompletion_cc_cc', [
@@ -75,6 +78,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'gradefinal' => 'privacy:metadata:gradefinal',
             'unenroled' => 'privacy:metadata:unenroled',
             'timecompleted' => 'privacy:metadata:timecompleted',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_cc_cc');
 
         $collection->add_database_table('local_recompletion_qa', [
@@ -88,6 +92,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'timemodifiedoffline'   => 'privacy:metadata:quiz_attempts:timemodifiedoffline',
             'timecheckstate'        => 'privacy:metadata:quiz_attempts:timecheckstate',
             'sumgrades'             => 'privacy:metadata:quiz_attempts:sumgrades',
+            'timearchived'           => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:quiz_attempts');
 
         $collection->add_database_table('local_recompletion_qg', [
@@ -95,12 +100,14 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'userid'                => 'privacy:metadata:quiz_grades:userid',
             'grade'                 => 'privacy:metadata:quiz_grades:grade',
             'timemodified'          => 'privacy:metadata:quiz_grades:timemodified',
+            'timearchived'           => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:quiz_grades');
 
         $collection->add_database_table('local_recompletion_sa', [
             'userid' => 'privacy:metadata:userid',
             'scormid' => 'privacy:metadata:scormid',
             'courseid' => 'privacy:metadata:course',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:scorm_attempt');
 
         $collection->add_database_table('local_recompletion_ssv', [
@@ -110,6 +117,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'value' => 'privacy:metadata:scoes_value:value',
             'timemodified' => 'privacy:metadata:timemodified',
             'courseid' => 'privacy:metadata:course',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:scorm_scoes_value');
 
         $collection->add_database_table('local_recompletion_ltia', [
@@ -118,6 +126,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'lastgrade' => 'privacy:metadata:local_recompletion_ltia:lastgrade',
             'lastaccess' => 'privacy:metadata:local_recompletion_ltia:lastaccess',
             'timecreated' => 'privacy:metadata:local_recompletion_ltia:timecreated',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_ltia');
 
         $collection->add_database_table('local_recompletion_qr', [
@@ -126,6 +135,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'submitted' => 'privacy:metadata:local_recompletion_qr:submitted',
             'complete' => 'privacy:metadata:local_recompletion_qr:complete',
             'grade' => 'privacy:metadata:local_recompletion_qr:grade',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_qr');
 
         $collection->add_database_table('local_recompletion_cha', [
@@ -133,6 +143,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'userid' => 'privacy:metadata:userid',
             'optionid' => 'privacy:metadata:local_recompletion_cha:optionid',
             'timemodified' => 'privacy:metadata:timemodified',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_cha');
 
         $collection->add_database_table('local_recompletion_ccert_is', [
@@ -140,6 +151,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'emailed' => 'privacy:metadata:local_recompletion_ccert_is:emailed',
             'timecreated' => 'privacy:metadata:local_recompletion_ccert_is:timecreated',
             'course' => 'privacy:metadata:course',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_ccert_is');
 
         $collection->add_database_table('local_recompletion_hvp', [
@@ -147,6 +159,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'hvp_id' => 'privacy:metadata:local_recompletion_hvp:hvp_id',
             'data' => 'privacy:metadata:local_recompletion_hvp:data',
             'course' => 'privacy:metadata:course',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_hvp');
 
         $collection->add_database_table('local_recompletion_h5p', [
@@ -155,36 +168,43 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'timecreated' => 'privacy:metadata:timecreated',
             'timemodified' => 'privacy:metadata:timemodified',
             'rawscore' => 'privacy:metadata:rawscore',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_h5p');
 
         $collection->add_database_table('local_recompletion_h5pr', [
             'attempt' => 'privacy:metadata:attempt',
             'timecreated' => 'privacy:metadata:timecreated',
             'rawscore' => 'privacy:metadata:rawscore',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_h5pr');
 
         $collection->add_database_table('local_recompletion_la', [
             'correct' => 'privacy:metadata:correct',
             'useranswer' => 'privacy:metadata:useranswer',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_la');
 
         $collection->add_database_table('local_recompletion_lg', [
             'grade' => 'privacy:metadata:grade',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_lg');
 
         $collection->add_database_table('local_recompletion_lt', [
             'starttime' => 'privacy:metadata:starttime',
             'lessontime' => 'privacy:metadata:lessontime',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_lt');
 
         $collection->add_database_table('local_recompletion_lb', [
             'flag' => 'privacy:metadata:flag',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_lb');
 
         $collection->add_database_table('local_recompletion_lo', [
             'deadline' => 'privacy:metadata:deadline',
             'maxattempts' => 'privacy:metadata:maxattempts',
             'retake' => 'privacy:metadata:retake',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_lo');
 
         $collection->add_database_table('local_recompletion_hpa', [
@@ -192,13 +212,31 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'starttime' => 'privacy:metadata:starttime',
             'endtime' => 'privacy:metadata:endtime',
             'score' => 'privacy:metadata:score',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_hpa');
 
         $collection->add_database_table('local_recompletion_cert', [
             'userid' => 'privacy:metadata:userid',
             'timecreated' => 'privacy:metadata:local_recompletion_cert:timecreated',
             'course' => 'privacy:metadata:course',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_cert');
+
+        $collection->add_database_table('local_recompletion_archived', [
+            'userid' => 'privacy:metadata:userid',
+            'courseid' => 'privacy:metadata:courseid',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
+        ], 'privacy:metadata:local_recompletion_archived');
+
+        $collection->add_database_table('local_recompletion_tci_archived', [
+            'certissueid' => 'privacy:metadata:local_recompletion_tci_archived:certissueid',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
+        ], 'privacy:metadata:local_recompletion_tci_archived');
+
+        $collection->add_database_table('local_recompletion_grade_archived', [
+            'gradehistid' => 'privacy:metadata:local_recompletion_grade_archived:gradehistid',
+            'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
+        ], 'privacy:metadata:local_recompletion_grade_archived');
 
         return $collection;
     }
@@ -407,6 +445,39 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                     (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
                 );
             }
+
+            // Need to use courseid instead of course for the following tables.
+            $paramsid = [
+                'userid' => $userid,
+                'courseid' => $context->instanceid,
+            ];
+
+            $records = $DB->get_records('local_recompletion_archived', $paramsid);
+            foreach ($records as $record) {
+                $context = \context_course::instance($record->course);
+                writer::with_context($context)->export_data(
+                    [get_string('recompletion', 'local_recompletion'), 'recompletion_archived'],
+                    (object) [array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
+            }
+
+            $records = $DB->get_records('local_recompletion_tci_archived', $paramsid);
+            foreach ($records as $record) {
+                $context = \context_course::instance($record->course);
+                writer::with_context($context)->export_data(
+                    [get_string('recompletion', 'local_recompletion'), 'tool_certificate_issue_archived'],
+                    (object) [array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
+            }
+
+            $records = $DB->get_records('local_recompletion_grade_archived', $paramsid);
+            foreach ($records as $record) {
+                $context = \context_course::instance($record->course);
+                writer::with_context($context)->export_data(
+                    [get_string('recompletion', 'local_recompletion'), 'grade_archived'],
+                    (object) [array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
+            }
         }
     }
 
@@ -464,6 +535,9 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         $DB->delete_records('local_recompletion_lo', $params);
         $DB->delete_records('local_recompletion_hpa', $params);
         $DB->delete_records('local_recompletion_cert', $params);
+        $DB->delete_records('local_recompletion_archived', $paramsid);
+        $DB->delete_records('local_recompletion_tci_archived', $paramsid);
+        $DB->delete_records('local_recompletion_grade_archived', $paramsid);
 
         self::delete_hp5_activity_records($courseid);
     }
@@ -508,6 +582,14 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             $DB->delete_records('local_recompletion_lo', $params);
             $DB->delete_records('local_recompletion_hpa', $params);
             $DB->delete_records('local_recompletion_cert', $params);
+
+            $paramsid = [
+                'userid' => $userid,
+                'courseid' => $courseid,
+            ];
+            $DB->delete_records('local_recompletion_archived', $paramsid);
+            $DB->delete_records('local_recompletion_tci_archived', $paramsid);
+            $DB->delete_records('local_recompletion_grade_archived', $paramsid);
         }
     }
 
@@ -612,6 +694,24 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                   FROM {course} c
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   JOIN {local_recompletion_cert} rc ON rc.course = c.id and rc.userid = :userid";
+        $contextlist->add_from_sql($sql, $params);
+
+        $sql = "SELECT ctx.id
+                  FROM {course} c
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  JOIN {local_recompletion_archived} ra ON ra.courseid = c.id and ra.userid = :userid";
+        $contextlist->add_from_sql($sql, $params);
+
+        $sql = "SELECT ctx.id
+                  FROM {course} c
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  JOIN {local_recompletion_tci_archived} ra ON ra.courseid = c.id and ra.userid = :userid";
+        $contextlist->add_from_sql($sql, $params);
+
+        $sql = "SELECT ctx.id
+                  FROM {course} c
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  JOIN {local_recompletion_grade_archived} ra ON ra.courseid = c.id and ra.userid = :userid";
         $contextlist->add_from_sql($sql, $params);
 
         return $contextlist;
@@ -746,7 +846,29 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   WHERE ctx.id = :contextid";
         $userlist->add_from_sql('userid', $sql, $params);
+
+        $sql = "SELECT rc.userid
+                  FROM {local_recompletion_archived} ra
+                  JOIN {course} c ON ra.courseid = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        $sql = "SELECT rc.userid
+                  FROM {local_recompletion_tci_archived} ra
+                  JOIN {course} c ON ra.courseid = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        $sql = "SELECT rc.userid
+                  FROM {local_recompletion_grade_archived} ra
+                  JOIN {course} c ON ra.courseid = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid";
+        $userlist->add_from_sql('userid', $sql, $params);
     }
+
     /**
      * Delete multiple users within a single context.
      *
@@ -898,6 +1020,27 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         $sql = "SELECT rc.id
                   FROM {local_recompletion_cert} rc
                   JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rc.userid $insql";
+        $DB->delete_records_select('local_recompletion_cert', "id $sql", $params);
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_archived} ra
+                  JOIN {course} c ON ra.courseid = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rc.userid $insql";
+        $DB->delete_records_select('local_recompletion_cert', "id $sql", $params);
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_tci_archived} ra
+                  JOIN {course} c ON ra.courseid = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rc.userid $insql";
+        $DB->delete_records_select('local_recompletion_cert', "id $sql", $params);
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_grade_archived} ra
+                  JOIN {course} c ON ra.courseid = c.id
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   WHERE ctx.id = :contextid AND rc.userid $insql";
         $DB->delete_records_select('local_recompletion_cert', "id $sql", $params);

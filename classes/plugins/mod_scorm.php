@@ -122,10 +122,12 @@ class mod_scorm {
             foreach (array_keys($scormattempt) as $sid) {
                 // Add courseid to records to help with restore process.
                 $scormattempt[$sid]->courseid = $course->id;
+                $scormattempt[$sid]->timearchived = $config->timearchived;
                 $scormscoesvalue = $DB->get_records('scorm_scoes_value', ['attemptid' => $sid]);
                 if ($config->archivescorm) {
                     foreach (array_keys($scormscoesvalue) as $ssvid) {
                         $scormscoesvalue[$ssvid]->courseid = $course->id;
+                        $scormscoesvalue[$ssvid]->timearchived = $config->timearchived;
                     }
                     $DB->insert_records('local_recompletion_ssv', $scormscoesvalue);
                 }

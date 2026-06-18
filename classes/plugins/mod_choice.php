@@ -123,6 +123,7 @@ class mod_choice {
                 foreach ($choiceanswers as $cid => $unused) {
                     // Add courseid to records to help with restore process.
                     $choiceanswers[$cid]->course = $course->id;
+                    $choiceanswers[$cid]->timearchived = $config->timearchived;
                 }
                 $DB->insert_records('local_recompletion_cha', $choiceanswers);
             }

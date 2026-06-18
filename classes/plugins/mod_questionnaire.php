@@ -144,6 +144,7 @@ class mod_questionnaire {
 
                     foreach ($extratables as $newtable => $table) {
                         $extrarows = $DB->get_records($table, ['response_id' => $qid]);
+                        local_recompletion_set_timearchived($extrarows, $config->timearchived);
                         if (!empty($extrarows)) {
                             $DB->insert_records($newtable, $extrarows);
                         }
@@ -157,6 +158,7 @@ class mod_questionnaire {
             }
 
             if ($config->archivequestionnaire) {
+                local_recompletion_set_timearchived($questionnaireattempts, $config->timearchived);
                 // Archive main response table.
                 $DB->insert_records('local_recompletion_qr', $questionnaireattempts);
             }

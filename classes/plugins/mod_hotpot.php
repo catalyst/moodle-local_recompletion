@@ -138,6 +138,7 @@ class mod_hotpot {
                 $records = $DB->get_records_select('hotpot_attempts', $attemptsselectsql, $params);
                 foreach ($records as $record) {
                     $record->course = $course->id;
+                    $record->timearchived = $config->timearchived;
                 }
                 $DB->insert_records('local_recompletion_hpa', $records);
             }
