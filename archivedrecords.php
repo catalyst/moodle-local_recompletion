@@ -26,7 +26,7 @@
 require_once(__DIR__ . '/../../config.php');
 
 $courseid = required_param('id', PARAM_INT);
-$selectedreport = optional_param('report', 'archived_choice_answers', PARAM_TEXT);
+$selectedreport = optional_param('report', 'archived_course_completions', PARAM_TEXT);
 
 $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 require_login($course);
@@ -34,7 +34,7 @@ require_login($course);
 $context = core\context\course::instance($course->id);
 require_capability('local/recompletion:manage', $context);
 
-$activeurl = new core\url('/local/recompletion/archivedrecords.php', ['courseid' => $course->id, 'report' => $selectedreport]);
+$activeurl = new core\url('/local/recompletion/archivedrecords.php', ['id' => $course->id, 'report' => $selectedreport]);
 $pagetitle = get_string('archivedrecords', 'local_recompletion');
 
 $PAGE->set_url($activeurl);

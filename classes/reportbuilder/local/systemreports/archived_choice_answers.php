@@ -149,7 +149,7 @@ class archived_choice_answers extends system_report {
         $this->add_filter((new filter(
             select::class,
             'choiceid',
-            new lang_string('pluginname', 'choice_answers'),
+            new lang_string('pluginname', 'choice'),
             $chaentity->get_entity_name(),
             "{$tablealias}.choiceid"
         ))
