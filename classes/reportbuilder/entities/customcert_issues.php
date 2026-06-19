@@ -82,27 +82,10 @@ class customcert_issues extends base {
         ))
             ->add_joins($this->get_joins())
             ->set_type(column::TYPE_INTEGER)
-            ->add_fields("{$tablealias}.customcertid, {$tablealias}.course")
+            ->add_field("{$tablealias}.customcertid", 'instanceid')
+            ->add_field("{$tablealias}.course", 'courseid')
             ->set_is_sortable(true)
-            ->add_callback(static function ($value, $row): string {
-                global $PAGE;
-
-                $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
-                $modinfo = get_fast_modinfo($row->course);
-
-                if (
-                    !empty($modinfo) && !empty($modinfo->get_instances_of('customcert')
-                        && !empty($modinfo->get_instances_of('customcert')[$row->customcertid]))
-                ) {
-                    $cm = $modinfo->get_instances_of('customcert')[$row->customcertid];
-                    $modulename = get_string('modulename', $cm->modname);
-                    $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
-
-                    return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
-                } else {
-                    return (string) $row->customcertid;
-                }
-            });
+            ->add_callback([helper::class, 'get_module_name'], 'customcert');
 
         $columns[] = (new column(
             'code',
@@ -122,6 +105,17 @@ class customcert_issues extends base {
             ->add_joins($this->get_joins())
             ->set_type(column::TYPE_TIMESTAMP)
             ->add_field("{$tablealias}.timecreated")
+            ->set_is_sortable(true)
+            ->add_callback([format::class, 'userdate']);
+
+        $columns[] = (new column(
+            'timearchived',
+            new lang_string('report:timearchived', 'local_recompletion'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TIMESTAMP)
+            ->add_field("{$tablealias}.timearchived")
             ->set_is_sortable(true)
             ->add_callback([format::class, 'userdate']);
 

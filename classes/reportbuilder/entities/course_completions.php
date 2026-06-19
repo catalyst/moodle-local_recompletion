@@ -146,6 +146,17 @@ class course_completions extends base {
             ->set_is_sortable(true)
             ->add_callback([format::class, 'userdate']);
 
+        $columns[] = (new column(
+            'timearchived',
+            new lang_string('report:timearchived', 'local_recompletion'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TIMESTAMP)
+            ->add_field("{$coursecompletion}.timearchived")
+            ->set_is_sortable(true)
+            ->add_callback([format::class, 'userdate']);
+
         return $columns;
     }
 

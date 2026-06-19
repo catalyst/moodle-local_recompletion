@@ -159,8 +159,10 @@ class check_recompletion extends \core\task\scheduled_task {
         $params = ['userid' => $userid, 'course' => $course->id];
         if (!empty(get_config('local_recompletion', 'forcearchivecompletiondata')) || $config->archivecompletiondata) {
             $coursecompletions = $DB->get_records('course_completions', $params);
+            local_recompletion_set_timearchived($coursecompletions, $config->timearchived);
             $DB->insert_records('local_recompletion_cc', $coursecompletions);
             $criteriacompletions = $DB->get_records('course_completion_crit_compl', $params);
+            local_recompletion_set_timearchived($criteriacompletions, $config->timearchived);
             $DB->insert_records('local_recompletion_cc_cc', $criteriacompletions);
         }
         $DB->delete_records('course_completions', $params);
@@ -173,6 +175,7 @@ class check_recompletion extends \core\task\scheduled_task {
             foreach ($cmc as $cid => $unused) {
                 // Add courseid to records to help with restore process.
                 $cmc[$cid]->course = $course->id;
+                $cmc[$cid]->timearchived = $config->timearchived;
             }
             $DB->insert_records('local_recompletion_cmc', $cmc);
         }
@@ -185,6 +188,7 @@ class check_recompletion extends \core\task\scheduled_task {
             foreach ($cmc as $cid => $unused) {
                 // Add courseid to records to help with restore process.
                 $cmc[$cid]->course = $course->id;
+                $cmc[$cid]->timearchived = $config->timearchived;
             }
             $DB->insert_records('local_recompletion_cmv', $cmc);
         }
@@ -264,6 +268,8 @@ class check_recompletion extends \core\task\scheduled_task {
             return $errors;
         }
 
+        $config->timearchived = time();
+
         $restrictions = local_recompletion_get_supported_restrictions();
         foreach ($restrictions as $plugin) {
             $fqn = 'local_recompletion\\local\\restrictions\\' . $plugin;
@@ -288,12 +294,26 @@ class check_recompletion extends \core\task\scheduled_task {
         // Delete current grade information.
         if ($config->deletegradedata) {
             if ($items = \grade_item::fetch_all(['courseid' => $course->id])) {
+                $gradeids = [];
                 foreach ($items as $item) {
                     if ($grades = \grade_grade::fetch_all(['userid' => $userid, 'itemid' => $item->id])) {
                         foreach ($grades as $grade) {
+                            $gradeids[] = $grade->id;
                             $grade->delete('local_recompletion');
                         }
                     }
+                }
+
+                if (empty($CFG->disablegradehistory) && $gradeids) {
+                    // Grade history is enabled so we have records we can use as archived records.
+                    [$clause, $params] = $DB->get_in_or_equal($gradeids, SQL_PARAMS_NAMED);
+                    $params['timearchived'] = $config->timearchived;
+                    $params['courseid'] = $course->id;
+                    $sql = "INSERT INTO {local_recompletion_grade_archived} (gradehistid, courseid, timearchived)
+                            SELECT id, :courseid, :timearchived
+                              FROM {grade_grades_history}
+                             WHERE oldid {$clause}";
+                    $DB->execute($sql, $params);
                 }
             }
         }
@@ -315,6 +335,14 @@ class check_recompletion extends \core\task\scheduled_task {
                 }
             }
         }
+
+        // Create an archived record to help with reports.
+        $archived = (object) [
+            'userid' => $userid,
+            'courseid' => $course->id,
+            'timearchived' => $config->timearchived,
+        ];
+        $DB->insert_record('local_recompletion_archived', $archived);
 
         // Trigger completion reset event for this user.
         $event = \local_recompletion\event\completion_reset::create(

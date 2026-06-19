@@ -145,6 +145,7 @@ class mod_quiz {
                 foreach ($quizattempts as $qid => $unused) {
                     // Add courseid to records to help with restore process.
                     $quizattempts[$qid]->course = $course->id;
+                    $quizattempts[$qid]->timearchived = $config->timearchived;
                 }
                 $DB->insert_records('local_recompletion_qa', $quizattempts);
 
@@ -152,6 +153,7 @@ class mod_quiz {
                 foreach ($quizgrades as $qid => $unused) {
                     // Add courseid to records to help with restore process.
                     $quizgrades[$qid]->course = $course->id;
+                    $quizgrades[$qid]->timearchived = $config->timearchived;
                 }
                 $DB->insert_records('local_recompletion_qg', $quizgrades);
             }

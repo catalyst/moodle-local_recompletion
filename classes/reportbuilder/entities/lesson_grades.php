@@ -82,32 +82,15 @@ class lesson_grades extends base {
         ))
             ->add_joins($this->get_joins())
             ->set_type(column::TYPE_INTEGER)
-            ->add_fields("{$lessongrades}.lessonid, {$lessongrades}.course")
+            ->add_field("{$lessongrades}.lessonid", 'instanceid')
+            ->add_field("{$lessongrades}.course", 'courseid')
             ->set_is_sortable(true)
-            ->add_callback(static function ($value, $row): string {
-                global $PAGE;
-
-                $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
-                $modinfo = get_fast_modinfo($row->course);
-
-                if (
-                    !empty($modinfo) && !empty($modinfo->get_instances_of('lesson')
-                        && !empty($modinfo->get_instances_of('lesson')[$row->lessonid]))
-                ) {
-                    $cm = $modinfo->get_instances_of('lesson')[$row->lessonid];
-                    $modulename = get_string('modulename', $cm->modname);
-                    $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
-
-                    return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
-                } else {
-                    return (string) $row->lessonid;
-                }
-            });
+            ->add_callback([helper::class, 'get_module_name'], 'lesson');
 
         // Grade.
         $columns[] = (new column(
             'grade',
-            new lang_string('grade'),
+            new lang_string('gradenoun'),
             $this->get_entity_name()
         ))
             ->add_joins($this->get_joins())
@@ -124,6 +107,17 @@ class lesson_grades extends base {
             ->add_joins($this->get_joins())
             ->set_type(column::TYPE_TIMESTAMP)
             ->add_field("{$lessongrades}.completed")
+            ->set_is_sortable(true)
+            ->add_callback([format::class, 'userdate']);
+
+        $columns[] = (new column(
+            'timearchived',
+            new lang_string('report:timearchived', 'local_recompletion'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TIMESTAMP)
+            ->add_field("{$lessongrades}.timearchived")
             ->set_is_sortable(true)
             ->add_callback([format::class, 'userdate']);
 

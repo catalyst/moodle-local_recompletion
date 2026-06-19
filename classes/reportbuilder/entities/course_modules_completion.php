@@ -44,6 +44,7 @@ class course_modules_completion extends base {
     protected function get_default_tables(): array {
         return [
             'local_recompletion_cmc',
+            'user',
         ];
     }
 
@@ -81,6 +82,7 @@ class course_modules_completion extends base {
      */
     protected function get_all_columns(): array {
         $completion = $this->get_table_alias('local_recompletion_cmc');
+        $useralias = $this->get_table_alias('user');
 
         // Completion state.
         $columns[] = (new column(
@@ -130,6 +132,32 @@ class course_modules_completion extends base {
                 }
             });
 
+        $userfieldsapi = \core_user\fields::for_name();
+        $allnames = $userfieldsapi->get_sql($useralias, false, '', '', false)->selects;
+        $columns[] = (new column(
+            'overrideby',
+            new lang_string('report:overrideby', 'local_recompletion'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->add_join("LEFT JOIN {user} {$useralias} ON {$useralias}.id = {$completion}.overrideby")
+            ->set_type(column::TYPE_INTEGER)
+            ->add_fields("{$useralias}.id, $allnames, {$completion}.overrideby")
+            ->set_is_sortable(true)
+            ->add_callback(static function ($value, object $row): string {
+                if (!$row) {
+                    return '';
+                }
+                if (!$row->id) {
+                    return $row->overrideby ?? '';
+                }
+                $viewfullnames = has_capability('moodle/site:viewfullnames', \core\context\system::instance());
+                return html_writer::link(
+                    new \core\url('/user/profile.php', ['id' => $row->id]),
+                    fullname($row, $viewfullnames)
+                );
+            });
+
         // Time started.
         $columns[] = (new column(
             'timemodified',
@@ -139,6 +167,17 @@ class course_modules_completion extends base {
             ->add_joins($this->get_joins())
             ->set_type(column::TYPE_TIMESTAMP)
             ->add_field("{$completion}.timemodified")
+            ->set_is_sortable(true)
+            ->add_callback([format::class, 'userdate']);
+
+        $columns[] = (new column(
+            'timearchived',
+            new lang_string('report:timearchived', 'local_recompletion'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TIMESTAMP)
+            ->add_field("{$completion}.timearchived")
             ->set_is_sortable(true)
             ->add_callback([format::class, 'userdate']);
 

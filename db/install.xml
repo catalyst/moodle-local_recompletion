@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/recompletion/db" VERSION="20231121" COMMENT="XMLDB file for Moodle local/recompletion"
+<XMLDB PATH="local/recompletion/db" VERSION="20260618" COMMENT="XMLDB file for Moodle local/recompletion"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -13,6 +13,7 @@
         <FIELD NAME="timestarted" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timecompleted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="reaggregate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -21,6 +22,7 @@
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
         <INDEX NAME="timecompleted" UNIQUE="false" FIELDS="timecompleted"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_cc_cc" COMMENT="archive of course_completion_crit_compl">
@@ -32,6 +34,7 @@
         <FIELD NAME="gradefinal" TYPE="number" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="5" COMMENT="The final grade for the course (included regardless of whether a passing grade was required)"/>
         <FIELD NAME="unenroled" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Timestamp when the user was unenroled"/>
         <FIELD NAME="timecompleted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -41,6 +44,7 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
         <INDEX NAME="criteriaid" UNIQUE="false" FIELDS="criteriaid"/>
         <INDEX NAME="timecompleted" UNIQUE="false" FIELDS="timecompleted"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_cmc" COMMENT="archive of course_modules_completion table">
@@ -53,6 +57,7 @@
         <FIELD NAME="overrideby" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Tracks whether this completion state has been set manually to override a previous state."/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time at which the completion state last changed."/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -60,6 +65,7 @@
       <INDEXES>
         <INDEX NAME="coursemoduleid" UNIQUE="false" FIELDS="coursemoduleid" COMMENT="For quick access via course-module (e.g. when displaying course module settings page and we need to determine whether anyone has completed it)."/>
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_cmv" COMMENT="Tracks the completion viewed (viewed with cmid/userid and otherwise no row) of each user on each activity.">
@@ -69,12 +75,14 @@
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of user who has (or hasn't) viewed the activity."/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time at which the completion viewed created."/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="coursemoduleid" UNIQUE="false" FIELDS="coursemoduleid" COMMENT="For quick access via course-module (e.g. when displaying course module settings page and we need to determine whether anyone has completed it)."/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qa" COMMENT="archive of quiz attempts table">
@@ -94,6 +102,7 @@
         <FIELD NAME="timecheckstate" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Next time quiz cron should check attempt for state changes.  NULL means never check."/>
         <FIELD NAME="sumgrades" TYPE="number" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="5" COMMENT="Total marks for this attempt."/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -103,6 +112,7 @@
       <INDEXES>
         <INDEX NAME="state-timecheckstate" UNIQUE="false" FIELDS="state, timecheckstate"/>
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qg" COMMENT="archive of quiz grades table">
@@ -113,6 +123,7 @@
         <FIELD NAME="grade" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="The overall grade from the quiz. Not affected by overrides in the gradebook."/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this grade changed."/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -121,6 +132,7 @@
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_sa" COMMENT="archive of mdl_scorm_attempt table">
@@ -130,6 +142,7 @@
         <FIELD NAME="scormid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="attempt" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -141,6 +154,7 @@
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
         <INDEX NAME="attempt" UNIQUE="false" FIELDS="attempt"/>
         <INDEX NAME="courseid" UNIQUE="false" FIELDS="courseid"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_ssv" COMMENT="archive of mdl_scorm_scoes_value table">
@@ -152,6 +166,7 @@
         <FIELD NAME="value" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -164,6 +179,7 @@
         <INDEX NAME="attemptid" UNIQUE="false" FIELDS="attemptid"/>
         <INDEX NAME="elementid" UNIQUE="false" FIELDS="elementid"/>
         <INDEX NAME="courseid" UNIQUE="false" FIELDS="courseid"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_config" COMMENT="Configuration for recompletion.">
@@ -188,10 +204,15 @@
         <FIELD NAME="lastgrade" TYPE="number" LENGTH="10" NOTNULL="true" SEQUENCE="false" DECIMALS="5" COMMENT="The last grade that was sent"/>
         <FIELD NAME="lastaccess" TYPE="int" LENGTH="11" NOTNULL="true" SEQUENCE="false" COMMENT="The time the user was created"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="11" NOTNULL="true" SEQUENCE="false" COMMENT="The time the user was created"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qr" COMMENT="Copy of questionnaire_response table data">
       <FIELDS>
@@ -203,11 +224,15 @@
         <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Grade awarded"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="questionnaireid" TYPE="foreign" FIELDS="questionnaireid" REFTABLE="questionnaire" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qr_bool" COMMENT="questionnaire_response_bool table retrofitted from MySQL">
       <FIELDS>
@@ -215,12 +240,14 @@
         <FIELD NAME="response_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="choice_id" TYPE="char" LENGTH="1" NOTNULL="true" DEFAULT="y" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="response_question" UNIQUE="false" FIELDS="response_id, question_id"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qr_date" COMMENT="questionnaire_response_date table retrofitted from MySQL">
@@ -229,12 +256,14 @@
         <FIELD NAME="response_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="response" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="response_question" UNIQUE="false" FIELDS="response_id, question_id"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qr_m" COMMENT="questionnaire_resp_multiple table retrofitted from MySQL">
@@ -243,12 +272,14 @@
         <FIELD NAME="response_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="choice_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="response_question" UNIQUE="false" FIELDS="response_id, question_id, choice_id"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qr_other" COMMENT="questionnaire_response_other table retrofitted from MySQL">
@@ -258,12 +289,14 @@
         <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="choice_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="response" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="response_question" UNIQUE="false" FIELDS="response_id, question_id, choice_id"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qr_rank" COMMENT="questionnaire_response_rank table retrofitted from MySQL">
@@ -273,12 +306,14 @@
         <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="choice_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="rankvalue" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="response_question" UNIQUE="false" FIELDS="response_id, question_id, choice_id"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qr_single" COMMENT="questionnaire_resp_single table retrofitted from MySQL">
@@ -287,12 +322,14 @@
         <FIELD NAME="response_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="choice_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="response_question" UNIQUE="false" FIELDS="response_id, question_id"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qr_text" COMMENT="questionnaire_response_text table retrofitted from MySQL">
@@ -301,12 +338,14 @@
         <FIELD NAME="response_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="response" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="response_question" UNIQUE="false" FIELDS="response_id, question_id"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_cha" COMMENT="archive of choice_answers table">
@@ -317,6 +356,7 @@
         <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -324,6 +364,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_ccert_is" COMMENT="archive of customcert_issues table">
@@ -335,6 +376,7 @@
         <FIELD NAME="emailed" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for customcert_issues"/>
@@ -342,6 +384,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_hvp" COMMENT="Archive for hvp_content_user_data table">
@@ -355,10 +398,14 @@
         <FIELD NAME="preloaded" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="delete_on_content_change" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Extra course to help restoring if needed."/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_h5p" COMMENT="Users attempts inside H5P activities (h5pactivity_attempts)">
       <FIELDS>
@@ -376,10 +423,14 @@
         <FIELD NAME="completion" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Store the xAPI tracking completion result."/>
         <FIELD NAME="success" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Store the xAPI tracking success result."/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Extra course to help restoring if needed."/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_h5pr" COMMENT="H5Pactivities_attempts tracking info">
       <FIELDS>
@@ -398,10 +449,14 @@
         <FIELD NAME="completion" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Store the xAPI tracking completion result."/>
         <FIELD NAME="success" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Store the xAPI tracking success result."/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Extra course to help restoring if needed."/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_la" COMMENT="Archive for lesson_attempts">
       <FIELDS>
@@ -415,10 +470,14 @@
         <FIELD NAME="useranswer" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="timeseen" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_lg" COMMENT="Archive of lesson_grades">
       <FIELDS>
@@ -429,10 +488,14 @@
         <FIELD NAME="late" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="completed" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_lt" COMMENT="Archive of lesson_timer">
       <FIELDS>
@@ -444,10 +507,14 @@
         <FIELD NAME="completed" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodifiedoffline" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_lb" COMMENT="Archive of lesson_branch">
       <FIELDS>
@@ -460,10 +527,14 @@
         <FIELD NAME="timeseen" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="nextpageid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_lo" COMMENT="Archive of lesson_overrides">
       <FIELDS>
@@ -479,10 +550,14 @@
         <FIELD NAME="retake" TYPE="int" LENGTH="3" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="password" TYPE="char" LENGTH="32" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_hpa" COMMENT="Archived records for hotpot_attempts table">
       <FIELDS>
@@ -500,10 +575,14 @@
         <FIELD NAME="clickreportid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_cert" COMMENT="archive of certificate_issues table">
       <FIELDS>
@@ -514,10 +593,62 @@
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="printdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Date printed on a certificate. It could be course completion, completion of one of the activities or issued date. Record it for possible verification."/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_recompletion_archived" COMMENT="A record of when a user completion was archived">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_recompletion_tci_archived" COMMENT="A record of when a tool certificate issue was archived">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="certissueid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="certissueid" TYPE="foreign" FIELDS="certissueid" REFTABLE="tool_certificate_issues" REFFIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_recompletion_grade_archived" COMMENT="A record of when a grade was archived">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="gradehistid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timearchived" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="gradehistid" TYPE="foreign" FIELDS="gradehistid" REFTABLE="grade_grades_history" REFFIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="timearchived" UNIQUE="false" FIELDS="timearchived"/>
+      </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>

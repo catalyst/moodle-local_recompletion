@@ -19,8 +19,6 @@ namespace local_recompletion\reportbuilder\entities;
 use core_reportbuilder\local\entities\base;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
-use core_renderer;
-use html_writer;
 use lang_string;
 
 /**
@@ -81,27 +79,10 @@ class quiz_attempts extends base {
         ))
             ->add_joins($this->get_joins())
             ->set_type(column::TYPE_INTEGER)
-            ->add_fields("{$alias}.quiz, {$alias}.course")
+            ->add_field("{$alias}.quiz", 'instanceid')
+            ->add_field("{$alias}.course", 'courseid')
             ->set_is_sortable(true)
-            ->add_callback(static function ($value, $row): string {
-                global $PAGE;
-
-                $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
-                $modinfo = get_fast_modinfo($row->course);
-
-                if (
-                    !empty($modinfo) && !empty($modinfo->get_instances_of('quiz')
-                        && !empty($modinfo->get_instances_of('quiz')[$row->quiz]))
-                ) {
-                    $cm = $modinfo->get_instances_of('quiz')[$row->quiz];
-                    $modulename = get_string('modulename', $cm->modname);
-                    $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
-
-                    return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
-                } else {
-                    return (string) $row->quiz;
-                }
-            });
+            ->add_callback([helper::class, 'get_module_name'], 'quiz');
 
         $columns[] = (new column(
             'attempt',
@@ -157,7 +138,7 @@ class quiz_attempts extends base {
 
         $columns[] = (new column(
             'sumgrades',
-            new lang_string('grade', 'quiz'),
+            new lang_string('gradenoun'),
             $this->get_entity_name()
         ))
             ->add_joins($this->get_joins())
@@ -173,6 +154,17 @@ class quiz_attempts extends base {
             ->add_joins($this->get_joins())
             ->set_type(column::TYPE_TIMESTAMP)
             ->add_field("{$alias}.timemodified")
+            ->set_is_sortable(true)
+            ->add_callback([format::class, 'userdate']);
+
+        $columns[] = (new column(
+            'timearchived',
+            new lang_string('report:timearchived', 'local_recompletion'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TIMESTAMP)
+            ->add_field("{$alias}.timearchived")
             ->set_is_sortable(true)
             ->add_callback([format::class, 'userdate']);
 

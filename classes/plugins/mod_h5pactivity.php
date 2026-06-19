@@ -131,6 +131,7 @@ class mod_h5pactivity {
                     foreach ($attempts as $attempt) {
                         $attempt->course = $course->id;
                         $attempt->originalattemptid = $attempt->id;
+                        $attempt->timearchived = $config->timearchived;
                     }
 
                     $DB->insert_records('local_recompletion_h5p', $attempts);
@@ -140,6 +141,7 @@ class mod_h5pactivity {
                     if (!empty($results)) {
                         foreach ($results as $result) {
                             $result->course = $course->id;
+                            $result->timearchived = $config->timearchived;
                         }
                         $DB->insert_records('local_recompletion_h5pr', $results);
 

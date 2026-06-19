@@ -151,6 +151,7 @@ class mod_customcert {
                 foreach (array_keys($issuedcerts) as $ic) {
                     // Add courseid to records to help with restore process.
                     $issuedcerts[$ic]->course = $course->id;
+                    $issuedcerts[$ic]->timearchived = $config->timearchived;
                 }
                 $DB->insert_records('local_recompletion_ccert_is', $issuedcerts);
             }

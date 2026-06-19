@@ -220,3 +220,16 @@ function local_recompletion_calculate_schedule_time(string $input): int {
 
     return $time;
 }
+
+/**
+ * Sets the timearched for all given records.
+ *
+ * @param object[] $records
+ * @param int|string $timearchived
+ * @return void
+ */
+function local_recompletion_set_timearchived(array &$records, int $timearchived) {
+    foreach ($records as $record) {
+        $record->timearchived = $timearchived;
+    }
+}

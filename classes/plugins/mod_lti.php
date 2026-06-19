@@ -125,6 +125,10 @@ class mod_lti {
             if ($config->archivelti) {
                 // If set we archive records.
                 $ltiusers = $DB->get_records('enrol_lti_users', $params, '', 'toolid,userid,lastaccess,lastgrade,timecreated');
+                foreach ($ltiusers as $ltiuser) {
+                    $ltiuser->course = $course->id;
+                    $ltiuser->timearchived = $config->timearchived;
+                }
                 $DB->insert_records('local_recompletion_ltia', $ltiusers);
             }
 
