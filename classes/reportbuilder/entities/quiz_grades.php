@@ -20,6 +20,7 @@ use core_reportbuilder\local\entities\base;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
 use lang_string;
+use local_recompletion\reportbuilder\helper;
 
 /**
  * Report builder entity for quiz grades archived records.

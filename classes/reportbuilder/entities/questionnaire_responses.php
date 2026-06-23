@@ -20,7 +20,7 @@ use core_reportbuilder\local\entities\base;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
 use lang_string;
-use user_add_filter_form;
+use local_recompletion\reportbuilder\helper;
 
 /**
  * Report builder entity for questionnaire response archived records.

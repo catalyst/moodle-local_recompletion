@@ -14,19 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace local_recompletion;
+
+use moodleform;
+use local_recompletion\reportbuilder\local\filters\user;
+
 /**
- * Version details.
+ * The form to select a user for the archived user records reports.
  *
  * @package    local_recompletion
- * @copyright  2017 Dan Marsden
+ * @author     Rossco Hellmans <rosscohellmans@catalyst-au.net>
+ * @copyright  Catalyst IT, 2026
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class archived_records_filter_form extends moodleform {
+    /**
+     * Defines the form fields.
+     */
+    public function definition() {
+        $mform = $this->_form;
+        $courseid = $this->_customdata['courseid'];
 
-defined('MOODLE_INTERNAL') || die;
+        user::add_user_select(
+            $mform,
+            $courseid,
+            'selectedusers',
+            get_string('user'),
+            ['multiple' => true]
+        );
 
-$plugin->version   = 2026061801;
-$plugin->release   = 2026061801;
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->requires  = 2024100700; // Requires 4.5.
-$plugin->component = 'local_recompletion';
-$plugin->supported = [405, 502];
+        $this->add_action_buttons(false, get_string('filter'));
+    }
+}
