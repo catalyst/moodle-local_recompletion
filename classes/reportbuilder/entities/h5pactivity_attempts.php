@@ -21,9 +21,8 @@ use core_reportbuilder\local\filters\select;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
-use core_renderer;
-use html_writer;
 use lang_string;
+use local_recompletion\reportbuilder\helper;
 
 /**
  * Report builder entity for archived h5pactivity attempts.

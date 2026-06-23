@@ -26,7 +26,7 @@ use core_reportbuilder\local\report\filter;
 use core_reportbuilder\system_report;
 use local_recompletion\reportbuilder\entities\archived;
 use local_recompletion\reportbuilder\entities\h5pactivity_attempts;
-use local_recompletion\reportbuilder\entities\helper;
+use local_recompletion\reportbuilder\helper;
 use local_recompletion\reportbuilder\local\filters\user as user_filter;
 
 /**
@@ -53,6 +53,8 @@ class archived_h5pactivity_attempts extends system_report {
      * Initialise report, we need to set the main table, load our entities and set columns/filters
      */
     protected function initialise(): void {
+        global $DB;
+
         $h5pattempt = new h5pactivity_attempts();
         $tablealias = $h5pattempt->get_table_alias('local_recompletion_h5p');
         $this->add_entity($h5pattempt);
@@ -79,11 +81,21 @@ class archived_h5pactivity_attempts extends system_report {
         $this->add_columns();
         $this->add_filters();
 
-        // Add course id clause.
+        // Add course and user id clauses.
         $courseid = $this->get_parameter('courseid', 0, \core\param::INT->value);
         if ($courseid) {
             $paramcourseid = database::generate_param_name('courseid');
             $this->add_base_condition_sql("{$tablealias}.course = :{$paramcourseid}", [$paramcourseid => $courseid]);
+        }
+        // User IDs is an array so we can't use get_parameter since it doesn't work with arrays.
+        $params = $this->get_parameters();
+        if (isset($params['userids']) && is_array($params['userids']) && !empty($params['userids'])) {
+            $userids = clean_param_array($params['userids'], \core\param::INT->value);
+            if ($userids) {
+                $paramuserid = database::generate_param_name('userid');
+                [$sql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, $paramuserid);
+                $this->add_base_condition_sql("{$useralias}.id {$sql}", $params);
+            }
         }
 
         // Set if report can be downloaded.

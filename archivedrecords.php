@@ -23,10 +23,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_recompletion\reportbuilder\helper;
+
 require_once(__DIR__ . '/../../config.php');
 
 $courseid = required_param('id', PARAM_INT);
-$selectedreport = optional_param('report', 'archived_course_completions', PARAM_TEXT);
+$selectedreport = optional_param('report', helper::MAIN_REPORT_PAGE, PARAM_TEXT);
 
 $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 require_login($course);
@@ -34,64 +36,145 @@ require_login($course);
 $context = core\context\course::instance($course->id);
 require_capability('local/recompletion:manage', $context);
 
-$activeurl = new core\url('/local/recompletion/archivedrecords.php', ['id' => $course->id, 'report' => $selectedreport]);
-$pagetitle = get_string('archivedrecords', 'local_recompletion');
+$currenturl = new core\url('/local/recompletion/archivedrecords.php', ['id' => $course->id, 'report' => $selectedreport]);
 
-$PAGE->set_url($activeurl);
+$pagetitle = get_string('archivedrecords', 'local_recompletion');
+$PAGE->set_url($currenturl);
 $PAGE->set_context($context);
 $PAGE->set_title($pagetitle);
 $PAGE->set_heading($pagetitle);
 
 $reportnamespace = 'local_recompletion\reportbuilder\local\systemreports\\';
-$reportclass = $reportnamespace . $selectedreport;
-$report = core_reportbuilder\system_report_factory::create(
-    $reportclass,
-    $context,
-    parameters: ['courseid' => $course->id]
-);
+$reports = helper::get_available_reports();
 
-echo $OUTPUT->header();
-
-$reports = [
-    'archived_course_completions' => get_string('report:archived_course_completions', 'local_recompletion'),
-    'archived_course_modules_completions' => get_string('report:archived_course_modules_completions', 'local_recompletion'),
-    'archived_grades' => get_string('report:archived_grades', 'local_recompletion'),
-    'archived_choice_answers' => get_string('report:archived_choice_answers', 'local_recompletion'),
-    'archived_coursecertificate_issues' => get_string('report:archived_coursecertificate_issues', 'local_recompletion'),
-    'archived_certificate_issues' => get_string('report:archived_certificate_issues', 'local_recompletion'),
-    'archived_customcert_issues' => get_string('report:archived_customcert_issues', 'local_recompletion'),
-    'archived_enrol_lti_users' => get_string('report:archived_enrol_lti_users', 'local_recompletion'),
-    'archived_h5pactivity_attempts' => get_string('report:archived_h5pactivity_attempts', 'local_recompletion'),
-    'archived_hotpot_attempts' => get_string('report:archived_hotpot_attempts', 'local_recompletion'),
-    'archived_hvp_content_user_data' => get_string('report:archived_hvp_content_user_data', 'local_recompletion'),
-    'archived_lesson_attempts' => get_string('report:archived_lesson_attempts', 'local_recompletion'),
-    'archived_lesson_grades' => get_string('report:archived_lesson_grades', 'local_recompletion'),
-    'archived_lesson_timers' => get_string('report:archived_lesson_timers', 'local_recompletion'),
-    'archived_lesson_overrides' => get_string('report:archived_lesson_overrides', 'local_recompletion'),
-    'archived_questionnaire_responses' => get_string('report:archived_questionnaire_responses', 'local_recompletion'),
-    'archived_quiz_attempts' => get_string('report:archived_quiz_attempts', 'local_recompletion'),
-    'archived_quiz_grades' => get_string('report:archived_quiz_grades', 'local_recompletion'),
-];
-$url = clone($activeurl);
+$url = clone($currenturl);
 $options = [];
-
 foreach ($reports as $type => $name) {
-    $class = $reportnamespace . $type;
-    if (!$class::report_visisble()) {
-        // Not visible, skip.
-        continue;
-    }
     $url->param('report', $type);
     $options[$url->out(false)] = $name;
 }
 
-$selectmenu = new core\output\select_menu('reporttype', $options, $activeurl->out(false));
+// Are we bulk downloading selected users reports?
+$downloadformat = optional_param('bulkdownloadformat', '', core\param::ALPHANUM->value);
+if ($selectedreport === helper::MAIN_REPORT_PAGE && $downloadformat && sesskey()) {
+    $selectedusers = required_param('selectedusers', core\param::TEXT->value);
+    $selectedusers = explode(',', $selectedusers);
+    $params = [
+        'courseid' => $course->id,
+        'userids' => $selectedusers,
+        'includefilters' => false,
+    ];
+
+    helper::bulk_download_reports($reports, $downloadformat, $course->id, $params);
+}
+
+echo $OUTPUT->header();
+
+$selectmenu = new core\output\select_menu('reporttype', $options, $currenturl->out(false));
 $selectmenu->set_label(get_string('report'), ['class' => 'sr-only']);
-echo html_writer::tag(
+$tertiarynav = core\output\html_writer::tag(
     'div',
     $OUTPUT->render_from_template('core/tertiary_navigation_selector', $selectmenu->export_for_template($OUTPUT)),
     ['class' => 'navitem']
 );
+echo core\output\html_writer::div(
+    $tertiarynav,
+    'tertiary-navigation full-width-bottom-border ms-0 d-flex',
+    ['id' => 'tertiary-navigation']
+);
 
-echo $report->output();
+if ($selectedreport === helper::MAIN_REPORT_PAGE) {
+    // Remove archived_user_records as a 'report'.
+    unset($reports[helper::MAIN_REPORT_PAGE]);
+
+    // Add filters form.
+    $filterform = new local_recompletion\archived_records_filter_form(
+        $currenturl,
+        ['courseid' => $course->id],
+        attributes: ['class' => 'mform full-width-labels', 'style' => 'flex: 1;']
+    );
+
+    // Only show the reports after users have been selected.
+    $data = $filterform->get_data();
+    if ($data && isset($data->selectedusers) && !empty($data->selectedusers)) {
+        // First display the filters and download form.
+        echo core\output\html_writer::start_div('d-flex align-items-end');
+        $filterform->display();
+        $downloadform = $OUTPUT->download_dataformat_selector(
+            get_string('report:bulkdownload_user_records', 'local_recompletion'),
+            new core\url('/local/recompletion/archivedrecords.php'),
+            'bulkdownloadformat',
+            [
+                'id' => $course->id,
+                'report' => 'archived_user_records',
+                'selectedusers' => implode(',', $data->selectedusers),
+            ]
+        );
+        echo core\output\html_writer::div($downloadform, 'mb-3');
+        echo core\output\html_writer::end_div();
+
+        $parms = [
+            'courseid' => $course->id,
+            'userids' => $data->selectedusers,
+            'includefilters' => false,
+        ];
+        foreach ($reports as $type => $name) {
+            $reportclass = helper::get_report_class($type);
+            $report = core_reportbuilder\system_report_factory::create(
+                $reportclass,
+                $context,
+                parameters: $parms
+            );
+
+            // Don't show the filters and download options per report, we have custom ones
+            // for the entire page to filter and bulk export all reports.
+            $report->set_downloadable(false);
+            $report->set_filter_form_default(false);
+
+            $html = '';
+            $reportid = 'report_' . $type;
+            $headerhtml = core\output\html_writer::tag(
+                'span',
+                $OUTPUT->pix_icon('t/expandedchevron', get_string('collapse')),
+                ['class' => 'expanded-icon']
+            );
+            $headerhtml .= core\output\html_writer::tag(
+                'span',
+                $OUTPUT->pix_icon('t/collapsedchevron', get_string('expand')),
+                ['class' => 'collapsed-icon']
+            );
+            $headerhtml .= core\output\html_writer::tag('h3', $name, ['class' => 'm-0']);
+            $html .= core\output\html_writer::tag(
+                'a',
+                $headerhtml,
+                [
+                    'class' => 'btn icons-collapse-expand mt-3 justify-content-start',
+                    'data-toggle' => 'collapse',
+                    'data-target' => '#' . $reportid,
+                    'aria-expanded' => 'true',
+                    'aria-controls' => $reportid,
+                    'href' => '#',
+                ]
+            );
+            $html .= core\output\html_writer::div(
+                $report->output(),
+                'collapse show',
+                ['id' => $reportid]
+            );
+            echo $html;
+        }
+    } else {
+        // We aren't showing the reports and download options yet but we still want to show the filters.
+        $filterform->display();
+    }
+} else {
+    $reportclass = helper::get_report_class($selectedreport);
+    $report = core_reportbuilder\system_report_factory::create(
+        $reportclass,
+        $context,
+        parameters: ['courseid' => $course->id]
+    );
+    echo $report->output();
+}
+
 echo $OUTPUT->footer();

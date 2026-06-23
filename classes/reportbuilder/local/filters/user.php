@@ -43,22 +43,15 @@ class user extends base {
         global $DB;
 
         // Specific user selection.
-        $userfieldsapi = \core_user\fields::for_name();
-        $allnames = $userfieldsapi->get_sql('u', false, '', '', false)->selects;
-        $sql = "SELECT DISTINCT u.id, $allnames
-                  FROM {local_recompletion_archived} a
-                  JOIN {user} u ON u.id = a.userid
-                 WHERE a.courseid = :courseid";
         $params = $this->filter->get_field_params();
-        $records = $DB->get_records_sql($sql, $params);
-        $users = [];
-        foreach ($records as $user) {
-            $users[$user->id] = fullname($user, has_capability('moodle/site:viewfullnames', system::instance()));
-        }
-
-        $valuelabel = get_string('filterfieldvalue', 'core_reportbuilder', $this->get_header());
-        $mform->addElement('autocomplete', "{$this->name}_value", $valuelabel, $users, ['multiple' => true])
-            ->setHiddenLabel(true);
+        $label = get_string('filterfieldvalue', 'core_reportbuilder', $this->get_header());
+        self::add_user_select(
+            $mform,
+            $params['courseid'],
+            "{$this->name}_value",
+            $label,
+            ['multiple' => true]
+        );
     }
 
     /**
@@ -102,5 +95,39 @@ class user extends base {
         return [
             "{$this->name}_value" => [1],
         ];
+    }
+
+    /**
+     * Adds the user autocomplete selector to the given form.
+     *
+     * @param MoodleQuickForm $mform
+     * @param int $courseid the course id to limit the select options for
+     * @param string $name the name to use for the field
+     * @param string $label the label for the field
+     * @param array $options any extra options to be applied to the field
+     */
+    public static function add_user_select(
+        MoodleQuickForm $mform,
+        int $courseid,
+        string $name,
+        string $label,
+        array $options
+    ) {
+        global $DB;
+
+        $userfieldsapi = \core_user\fields::for_name();
+        $allnames = $userfieldsapi->get_sql('u', false, '', '', false)->selects;
+        $sql = "SELECT DISTINCT u.id, $allnames
+                  FROM {local_recompletion_archived} a
+                  JOIN {user} u ON u.id = a.userid
+                 WHERE a.courseid = :courseid";
+        $params = ['courseid' => $courseid];
+        $records = $DB->get_records_sql($sql, $params);
+        $users = [];
+        foreach ($records as $user) {
+            $users[$user->id] = fullname($user, has_capability('moodle/site:viewfullnames', system::instance()));
+        }
+
+        $mform->addElement('autocomplete', $name, $label, $users, $options)->setHiddenLabel(true);
     }
 }
