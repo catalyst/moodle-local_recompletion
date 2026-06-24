@@ -58,11 +58,16 @@ foreach ($reports as $type => $name) {
 $downloadformat = optional_param('bulkdownloadformat', '', core\param::ALPHANUM->value);
 if ($selectedreport === helper::MAIN_REPORT_PAGE && $downloadformat && sesskey()) {
     $selectedusers = required_param('selectedusers', core\param::TEXT->value);
-    $selectedusers = explode(',', $selectedusers);
+    $selectedusers = $selectedusers !== '0' ? explode(',', $selectedusers) : [];
+    $timearchivedconditions = required_param('timearchivedconditions', core\param::TEXT->value);
+    $timearchivedparams = required_param('timearchivedparams', core\param::TEXT->value);
+    $timearchivedparams = (array) json_decode($timearchivedparams);
     $params = [
         'courseid' => $course->id,
         'userids' => $selectedusers,
         'includefilters' => false,
+        'timearchivedconditions' => $timearchivedconditions,
+        'timearchivedparams' => $timearchivedparams,
     ];
 
     helper::bulk_download_reports($reports, $downloadformat, $course->id, $params);
@@ -91,15 +96,30 @@ if ($selectedreport === helper::MAIN_REPORT_PAGE) {
     $filterform = new local_recompletion\archived_records_filter_form(
         $currenturl,
         ['courseid' => $course->id],
-        attributes: ['class' => 'mform full-width-labels', 'style' => 'flex: 1;']
+        attributes: ['class' => 'mform full-width-labels']
     );
 
     // Only show the reports after users have been selected.
     $data = $filterform->get_data();
-    if ($data && isset($data->selectedusers) && !empty($data->selectedusers)) {
+    if ($data) {
+        $operator = (int) ($data->selectedusers_operator ?? local_recompletion\reportbuilder\local\filters\user::USER_SELECT);
+        $selectedusers = $operator === local_recompletion\reportbuilder\local\filters\user::USER_SELECT ?
+            $data->selectedusers_value : 0;
+        $timearchivedfilter = helper::get_timearchived_filter();
+        [$timearchivedconditions, $timearchivedparams] = $timearchivedfilter->get_sql_filter((array) $data);
+        $params = [
+            'courseid' => $course->id,
+            'userids' => $selectedusers,
+            'includefilters' => false,
+            'timearchivedconditions' => $timearchivedconditions,
+            'timearchivedparams' => $timearchivedparams,
+        ];
+
         // First display the filters and download form.
         echo core\output\html_writer::start_div('d-flex align-items-end');
+        echo core\output\html_writer::start_div('filter-form', ['style' => 'flex: 1;']);
         $filterform->display();
+        echo core\output\html_writer::end_div();
         $downloadform = $OUTPUT->download_dataformat_selector(
             get_string('report:bulkdownload_user_records', 'local_recompletion'),
             new core\url('/local/recompletion/archivedrecords.php'),
@@ -107,23 +127,20 @@ if ($selectedreport === helper::MAIN_REPORT_PAGE) {
             [
                 'id' => $course->id,
                 'report' => 'archived_user_records',
-                'selectedusers' => implode(',', $data->selectedusers),
+                'selectedusers' => is_array($selectedusers) ? implode(',', $selectedusers) : $selectedusers,
+                'timearchivedconditions' => $params['timearchivedconditions'],
+                'timearchivedparams' => json_encode($params['timearchivedparams']),
             ]
         );
         echo core\output\html_writer::div($downloadform, 'mb-3');
         echo core\output\html_writer::end_div();
 
-        $parms = [
-            'courseid' => $course->id,
-            'userids' => $data->selectedusers,
-            'includefilters' => false,
-        ];
         foreach ($reports as $type => $name) {
             $reportclass = helper::get_report_class($type);
             $report = core_reportbuilder\system_report_factory::create(
                 $reportclass,
                 $context,
-                parameters: $parms
+                parameters: $params
             );
 
             // Don't show the filters and download options per report, we have custom ones

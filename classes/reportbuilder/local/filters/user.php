@@ -21,6 +21,7 @@ namespace local_recompletion\reportbuilder\local\filters;
 use core\context\system;
 use core_reportbuilder\local\helpers\database;
 use core_reportbuilder\local\filters\base;
+use lang_string;
 use MoodleQuickForm;
 
 /**
@@ -34,6 +35,24 @@ use MoodleQuickForm;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class user extends base {
+    /** @var int Filter for any user */
+    public const USER_ANY = 0;
+
+    /** @var int Filter for selected user(s) */
+    public const USER_SELECT = 1;
+
+    /**
+     * Return an array of operators available for this filter
+     *
+     * @return lang_string[]
+     */
+    private static function get_operators(): array {
+        return [
+            self::USER_ANY => new lang_string('userany', 'core_reportbuilder'),
+            self::USER_SELECT => new lang_string('select'),
+        ];
+    }
+
     /**
      * Setup form
      *
@@ -48,7 +67,7 @@ class user extends base {
         self::add_user_select(
             $mform,
             $params['courseid'],
-            "{$this->name}_value",
+            "{$this->name}",
             $label,
             ['multiple' => true]
         );
@@ -65,10 +84,12 @@ class user extends base {
 
         $fieldsql = $this->filter->get_field_sql();
         $params = $this->filter->get_field_params();
+
+        $operator = (int) ($values["{$this->name}_operator"] ?? self::USER_ANY);
         $userids = $values["{$this->name}_value"] ?? [];
 
-        if (!$userids) {
-            // No selected users, do not apply this filter.
+        if ($operator !== self::USER_SELECT) {
+            // Invalid or inactive filter.
             return ['', []];
         }
 
@@ -128,6 +149,13 @@ class user extends base {
             $users[$user->id] = fullname($user, has_capability('moodle/site:viewfullnames', system::instance()));
         }
 
-        $mform->addElement('autocomplete', $name, $label, $users, $options)->setHiddenLabel(true);
+        $operatorlabel = get_string('filterfieldoperator', 'core_reportbuilder', $label);
+        $mform->addElement('select', "{$name}_operator", $operatorlabel, self::get_operators())
+            ->setHiddenLabel(true);
+        $mform->setType("{$name}_operator", PARAM_INT);
+        $mform->setDefault("{$name}_operator", self::USER_ANY);
+
+        $mform->addElement('autocomplete', "{$name}_value", $label, $users, $options)->setHiddenLabel(true);
+        $mform->hideIf("{$name}_value", "{$name}_operator", 'neq', self::USER_SELECT);
     }
 }

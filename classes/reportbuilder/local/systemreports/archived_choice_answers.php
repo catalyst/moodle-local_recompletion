@@ -21,12 +21,11 @@ namespace local_recompletion\reportbuilder\local\systemreports;
 use core\lang_string;
 use core_reportbuilder\local\entities\user;
 use core_reportbuilder\local\filters\select;
-use core_reportbuilder\local\helpers\database;
 use core_reportbuilder\local\report\filter;
 use core_reportbuilder\system_report;
 use local_recompletion\reportbuilder\entities\archived;
-use local_recompletion\reportbuilder\helper;
 use local_recompletion\reportbuilder\entities\choice_answers;
+use local_recompletion\reportbuilder\helper;
 use local_recompletion\reportbuilder\local\filters\user as user_filter;
 
 /**
@@ -53,8 +52,6 @@ class archived_choice_answers extends system_report {
      * Initialise report, we need to set the main table, load our entities and set columns/filters
      */
     protected function initialise(): void {
-        global $DB;
-
         $caentitiy = new choice_answers();
         $tablealias = $caentitiy->get_table_alias('local_recompletion_cha');
         $this->add_entity($caentitiy);
@@ -81,22 +78,13 @@ class archived_choice_answers extends system_report {
         $this->add_columns();
         $this->add_filters();
 
-        // Add course and user id clauses.
-        $courseid = $this->get_parameter('courseid', 0, \core\param::INT->value);
-        if ($courseid) {
-            $paramcourseid = database::generate_param_name('courseid');
-            $this->add_base_condition_sql("{$tablealias}.course = :{$paramcourseid}", [$paramcourseid => $courseid]);
-        }
-        // User IDs is an array so we can't use get_parameter since it doesn't work with arrays.
-        $params = $this->get_parameters();
-        if (isset($params['userids']) && is_array($params['userids']) && !empty($params['userids'])) {
-            $userids = clean_param_array($params['userids'], \core\param::INT->value);
-            if ($userids) {
-                $paramuserid = database::generate_param_name('userid');
-                [$sql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, $paramuserid);
-                $this->add_base_condition_sql("{$useralias}.id {$sql}", $params);
-            }
-        }
+        // Add our hard filters from the set params.
+        helper::add_hard_conditions(
+            $this,
+            "{$tablealias}.course",
+            "{$useralias}.id",
+            "{$archivedalias}.timearchived"
+        );
 
         // Set if report can be downloaded.
         $this->set_downloadable(true);
@@ -170,6 +158,8 @@ class archived_choice_answers extends system_report {
             ))
                 ->add_joins($this->get_joins())
                 ->set_options(helper::get_available_cm_instances($courseid, 'choice')));
+
+            $this->add_filter_from_entity('archived:timearchived');
         }
     }
 }

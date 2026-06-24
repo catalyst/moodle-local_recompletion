@@ -17,8 +17,10 @@
 namespace local_recompletion\reportbuilder\entities;
 
 use core_reportbuilder\local\entities\base;
+use core_reportbuilder\local\filters\date;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
+use core_reportbuilder\local\report\filter;
 use lang_string;
 use local_recompletion\reportbuilder\helper;
 
@@ -62,6 +64,13 @@ class archived extends base {
             $this->add_column($column);
         }
 
+        $filters = $this->get_all_filters();
+        foreach ($filters as $filter) {
+            $this
+                ->add_condition($filter)
+                ->add_filter($filter);
+        }
+
         return $this;
     }
 
@@ -101,5 +110,25 @@ class archived extends base {
             ->add_callback([helper::class, 'get_time_period']);
 
         return $columns;
+    }
+
+    /**
+     * Return list of all available filters
+     *
+     * @return filter[]
+     */
+    protected function get_all_filters(): array {
+        $tablealias = $this->get_table_alias('local_recompletion_archived');
+
+        $filter = (new filter(
+            date::class,
+            'timearchived',
+            new lang_string('report:timearchived', 'local_recompletion'),
+            $this->get_entity_name(),
+            "{$tablealias}.timearchived"
+        ))
+            ->add_joins($this->get_joins());
+
+        return [$filter];
     }
 }
