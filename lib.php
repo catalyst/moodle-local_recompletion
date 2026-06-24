@@ -54,8 +54,11 @@ function local_recompletion_extend_navigation_course($navigation, $course, $cont
         $name = get_string('modifycompletiondates', 'local_recompletion');
         $navigation->add($name, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
 
-        $url = new moodle_url('/local/recompletion/archivedrecords.php', ['id' => $course->id]);
-        $name = get_string('archivedrecords', 'local_recompletion');
-        $navigation->add($name, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
+        $coursereports = $navigation->get('coursereports');
+        if ($coursereports) {
+            $url = new moodle_url('/local/recompletion/archivedrecords.php', ['id' => $course->id]);
+            $name = get_string('archivedrecords', 'local_recompletion');
+            $coursereports->add($name, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
+        }
     }
 }
