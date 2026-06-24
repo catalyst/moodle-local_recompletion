@@ -16,7 +16,9 @@
 
 namespace local_recompletion;
 
+use core\output\html_writer;
 use moodleform;
+use local_recompletion\reportbuilder\helper;
 use local_recompletion\reportbuilder\local\filters\user;
 
 /**
@@ -35,6 +37,7 @@ class archived_records_filter_form extends moodleform {
         $mform = $this->_form;
         $courseid = $this->_customdata['courseid'];
 
+        $mform->addElement('html', html_writer::div(get_string('userselect', 'reportbuilder'), 'filter-name text-truncate'));
         user::add_user_select(
             $mform,
             $courseid,
@@ -42,6 +45,10 @@ class archived_records_filter_form extends moodleform {
             get_string('user'),
             ['multiple' => true]
         );
+
+        $mform->addElement('html', html_writer::div(get_string('report:timearchived', 'local_recompletion'), 'filter-name text-truncate'));
+        $timearchivedfilter = helper::get_timearchived_filter();
+        $timearchivedfilter->setup_form($mform);
 
         $this->add_action_buttons(false, get_string('filter'));
     }

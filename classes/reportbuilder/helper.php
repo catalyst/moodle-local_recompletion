@@ -18,6 +18,14 @@ declare(strict_types=1);
 
 namespace local_recompletion\reportbuilder;
 
+use core_reportbuilder\local\filters\base;
+use core_reportbuilder\local\filters\date;
+use core_reportbuilder\local\helpers\database;
+use core_reportbuilder\local\report\filter;
+use core_reportbuilder\system_report;
+use lang_string;
+use local_recompletion\reportbuilder\entities\archived;
+
 /**
  * Recompletion entity helper class.
  *
@@ -246,5 +254,66 @@ class helper {
             get_string('report:enrolstart', 'local_recompletion');
         $end = userdate($row->timearchived, $format);
         return get_string('report:timeperiodstr', 'local_recompletion', ['start' => $start, 'end' => $end]);
+    }
+
+    /**
+     * Returns the timearchived filter to be used for the all reports page
+     *
+     * @return date
+     */
+    public static function get_timearchived_filter(): date {
+        static $timearchivedfilter;
+
+        if (!isset($timearchivedfilter)) {
+            $filter = new filter(
+                date::class,
+                'timearchived',
+                new lang_string('report:timearchived', 'local_recompletion'),
+                'archived',
+                '{timearchivedfield}'
+            );
+            $timearchivedfilter = base::create($filter);
+        }
+
+        return $timearchivedfilter;
+    }
+
+    /**
+     * Sets the hard coniditions for a given report by the params set for it
+     *
+     * @param system_report $report the report to set the coniditions for
+     * @param string $courseidfield the courseid field to use in the condition sql
+     * @param string $useridfield the userid field to use in the condition sql
+     * @param string $timearchivedfield the timearchived field to use in the condition sql
+     */
+    public static function add_hard_conditions(
+        system_report $report,
+        string $courseidfield,
+        string $useridfield,
+        string $timearchivedfield
+    ) {
+        global $DB;
+
+        // Add course and user id clauses.
+        $courseid = $report->get_parameter('courseid', 0, \core\param::INT->value);
+        if ($courseid) {
+            $paramcourseid = database::generate_param_name('courseid');
+            $report->add_base_condition_sql("{$courseidfield} = :{$paramcourseid}", [$paramcourseid => $courseid]);
+        }
+
+        // User IDs is an array so we can't use get_parameter since it doesn't work with arrays.
+        $reportparams = $report->get_parameters();
+        if (isset($reportparams['userids']) && is_array($reportparams['userids'])) {
+            $userids = clean_param_array($reportparams['userids'], \core\param::INT->value);
+            $paramuserid = database::generate_param_name('userid');
+            [$sql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, $paramuserid, true, null);
+            $report->add_base_condition_sql("{$useridfield} {$sql}", $params);
+        }
+
+        // Add any timearchived conditions.
+        if (isset($reportparams['timearchivedconditions']) && !empty($reportparams['timearchivedconditions'])) {
+            $conditions = str_replace('{timearchivedfield}', $timearchivedfield, $reportparams['timearchivedconditions']);
+            $report->add_base_condition_sql($conditions, $reportparams['timearchivedparams']);
+        }
     }
 }

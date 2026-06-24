@@ -81,22 +81,13 @@ class archived_certificate_issues extends system_report {
         $this->add_columns();
         $this->add_filters();
 
-        // Add course and user id clauses.
-        $courseid = $this->get_parameter('courseid', 0, \core\param::INT->value);
-        if ($courseid) {
-            $paramcourseid = database::generate_param_name('courseid');
-            $this->add_base_condition_sql("{$tablealias}.course = :{$paramcourseid}", [$paramcourseid => $courseid]);
-        }
-        // User IDs is an array so we can't use get_parameter since it doesn't work with arrays.
-        $params = $this->get_parameters();
-        if (isset($params['userids']) && is_array($params['userids']) && !empty($params['userids'])) {
-            $userids = clean_param_array($params['userids'], \core\param::INT->value);
-            if ($userids) {
-                $paramuserid = database::generate_param_name('userid');
-                [$sql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, $paramuserid);
-                $this->add_base_condition_sql("{$useralias}.id {$sql}", $params);
-            }
-        }
+        // Add our hard filters from the set params.
+        helper::add_hard_conditions(
+            $this,
+            "{$tablealias}.course",
+            "{$useralias}.id",
+            "{$archivedalias}.timearchived"
+        );
 
         // Set if report can be downloaded.
         $this->set_downloadable(true);
@@ -171,6 +162,8 @@ class archived_certificate_issues extends system_report {
             ))
                 ->add_joins($this->get_joins())
                 ->set_options(helper::get_available_cm_instances($courseid, 'certificate')));
+
+            $this->add_filter_from_entity('archived:timearchived');
         }
     }
 }

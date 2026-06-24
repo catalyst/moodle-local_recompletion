@@ -53,8 +53,6 @@ class archived_coursecertificate_issues extends system_report {
      * Initialise report, we need to set the main table, load our entities and set columns/filters
      */
     protected function initialise(): void {
-        global $DB;
-
         $tcientitiy = new tool_certificate_issues();
         $tablealias = $tcientitiy->get_table_alias('tool_certificate_issues');
         $tciarchivedalias = $tcientitiy->get_table_alias('local_recompletion_tci_archived');
@@ -93,22 +91,13 @@ class archived_coursecertificate_issues extends system_report {
         ];
         $this->add_base_condition_sql($sql, $params);
 
-        // Add course and user id clauses.
-        $courseid = $this->get_parameter('courseid', 0, \core\param::INT->value);
-        if ($courseid) {
-            $paramcourseid = database::generate_param_name('courseid');
-            $this->add_base_condition_sql("{$tablealias}.courseid = :{$paramcourseid}", [$paramcourseid => $courseid]);
-        }
-        // User IDs is an array so we can't use get_parameter since it doesn't work with arrays.
-        $params = $this->get_parameters();
-        if (isset($params['userids']) && is_array($params['userids']) && !empty($params['userids'])) {
-            $userids = clean_param_array($params['userids'], \core\param::INT->value);
-            if ($userids) {
-                $paramuserid = database::generate_param_name('userid');
-                [$sql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, $paramuserid);
-                $this->add_base_condition_sql("{$useralias}.id {$sql}", $params);
-            }
-        }
+        // Add our hard filters from the set params.
+        helper::add_hard_conditions(
+            $this,
+            "{$tablealias}.courseid",
+            "{$useralias}.id",
+            "{$archivedalias}.timearchived"
+        );
 
         // Set if report can be downloaded.
         $this->set_downloadable(true);
@@ -156,29 +145,35 @@ class archived_coursecertificate_issues extends system_report {
      * unique identifier
      */
     protected function add_filters(): void {
-        $courseid = $this->get_parameter('courseid', 0, \core\param::INT->value);
-        $userentity = $this->get_entity('user');
-        $useralias = $userentity->get_table_alias('user');
-        $this->add_filter((new filter(
-            user_filter::class,
-            'userselect',
-            new lang_string('userselect', 'core_reportbuilder'),
-            $userentity->get_entity_name(),
-            "{$useralias}.id",
-            ['courseid' => $courseid]
-        ))
-            ->add_joins($this->get_joins()));
+        // Only add these report filters if we are not overriding them, i.e. all user records page.
+        $includefilters = $this->get_parameter('includefilters', true, \core\param::BOOL->value);
+        if ($includefilters) {
+            $courseid = $this->get_parameter('courseid', 0, \core\param::INT->value);
+            $userentity = $this->get_entity('user');
+            $useralias = $userentity->get_table_alias('user');
+            $this->add_filter((new filter(
+                user_filter::class,
+                'userselect',
+                new lang_string('userselect', 'core_reportbuilder'),
+                $userentity->get_entity_name(),
+                "{$useralias}.id",
+                ['courseid' => $courseid]
+            ))
+                ->add_joins($this->get_joins()));
 
-        $tcientitiy = $this->get_entity('tool_certificate_issues');
-        $tablealias = $tcientitiy->get_table_alias('coursecertificate');
-        $this->add_filter((new filter(
-            select::class,
-            'coursecertificateid',
-            new lang_string('pluginname', 'coursecertificate'),
-            $tcientitiy->get_entity_name(),
-            "{$tablealias}.id"
-        ))
-            ->add_joins($this->get_joins())
-            ->set_options(helper::get_available_cm_instances($courseid, 'coursecertificate')));
+            $tcientitiy = $this->get_entity('tool_certificate_issues');
+            $tablealias = $tcientitiy->get_table_alias('coursecertificate');
+            $this->add_filter((new filter(
+                select::class,
+                'coursecertificateid',
+                new lang_string('pluginname', 'coursecertificate'),
+                $tcientitiy->get_entity_name(),
+                "{$tablealias}.id"
+            ))
+                ->add_joins($this->get_joins())
+                ->set_options(helper::get_available_cm_instances($courseid, 'coursecertificate')));
+
+            $this->add_filter_from_entity('archived:timearchived');
+        }
     }
 }
