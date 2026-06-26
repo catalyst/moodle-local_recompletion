@@ -58,7 +58,7 @@ foreach ($reports as $type => $name) {
 $downloadformat = optional_param('bulkdownloadformat', '', core\param::ALPHANUM->value);
 if ($selectedreport === helper::MAIN_REPORT_PAGE && $downloadformat && sesskey()) {
     $selectedusers = required_param('selectedusers', core\param::TEXT->value);
-    $selectedusers = $selectedusers !== '0' ? explode(',', $selectedusers) : [];
+    $selectedusers = $selectedusers !== '0' ? explode(',', $selectedusers) : 0;
     $timearchivedconditions = required_param('timearchivedconditions', core\param::TEXT->value);
     $timearchivedparams = required_param('timearchivedparams', core\param::TEXT->value);
     $timearchivedparams = (array) json_decode($timearchivedparams);
