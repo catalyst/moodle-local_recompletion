@@ -705,13 +705,15 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         $sql = "SELECT ctx.id
                   FROM {course} c
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
-                  JOIN {local_recompletion_tci_archived} ra ON ra.courseid = c.id and ra.userid = :userid";
+                  JOIN {local_recompletion_tci_archived} ra ON ra.courseid = c.id
+                  JOIN {tool_certificate_issues} ci ON ci.id = ra.certissueid AND ci.userid = :userid";
         $contextlist->add_from_sql($sql, $params);
 
         $sql = "SELECT ctx.id
                   FROM {course} c
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
-                  JOIN {local_recompletion_grade_archived} ra ON ra.courseid = c.id and ra.userid = :userid";
+                  JOIN {local_recompletion_grade_archived} rga ON rga.courseid = c.id
+                  JOIN {grade_grades_history} gh ON gh.id = rga.gradehistid AND gh.userid = :userid";
         $contextlist->add_from_sql($sql, $params);
 
         return $contextlist;
