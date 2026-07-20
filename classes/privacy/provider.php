@@ -600,6 +600,8 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      * @return contextlist $contextlist The contextlist containing the list of contexts used in this plugin.
      */
     public static function get_contexts_for_userid(int $userid): contextlist {
+        global $DB;
+
         $contextlist = new \core_privacy\local\request\contextlist();
 
         $params = ['contextlevel' => CONTEXT_COURSE, 'userid' => $userid];
@@ -702,12 +704,15 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                   JOIN {local_recompletion_archived} ra ON ra.courseid = c.id and ra.userid = :userid";
         $contextlist->add_from_sql($sql, $params);
 
-        $sql = "SELECT ctx.id
-                  FROM {course} c
-                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
-                  JOIN {local_recompletion_tci_archived} ra ON ra.courseid = c.id
-                  JOIN {tool_certificate_issues} ci ON ci.id = ra.certissueid AND ci.userid = :userid";
-        $contextlist->add_from_sql($sql, $params);
+        // Check if the tool_certificate_issues table exists, otherwise there is nothing we can do for tool_certificate.
+        if ($DB->get_manager()->table_exists('tool_certificate_issues')) {
+            $sql = "SELECT ctx.id
+                      FROM {course} c
+                      JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                      JOIN {local_recompletion_tci_archived} ra ON ra.courseid = c.id
+                      JOIN {tool_certificate_issues} ci ON ci.id = ra.certissueid AND ci.userid = :userid";
+            $contextlist->add_from_sql($sql, $params);
+        }
 
         $sql = "SELECT ctx.id
                   FROM {course} c
