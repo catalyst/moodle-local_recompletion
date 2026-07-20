@@ -133,20 +133,26 @@ final class mod_lesson_test extends \advanced_testcase {
             $this->assertFalse($DB->record_exists($archivetable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
         }
 
-        mod_lesson::reset($this->user->id, $course, (object)['lesson' => 0, 'archivelesson' => 0]);
+        $now = time();
+
+        $config = (object)['lesson' => 0, 'archivelesson' => 0, 'timearchived' => $now];
+        mod_lesson::reset($this->user->id, $course, $config);
         $this->assertTrue($DB->record_exists($originaltable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
         $this->assertFalse($DB->record_exists($archivetable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
 
-        mod_lesson::reset($this->user->id, $course, (object)['lesson' => 0, 'archivelesson' => 1]);
+        $config = (object)['lesson' => 0, 'archivelesson' => 1, 'timearchived' => $now];
+        mod_lesson::reset($this->user->id, $course, $config);
         $this->assertTrue($DB->record_exists($originaltable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
         $this->assertFalse($DB->record_exists($archivetable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
 
-        mod_lesson::reset($this->user->id, $course, (object)['lesson' => 1, 'archivelesson' => 0]);
+        $config = (object)['lesson' => 1, 'archivelesson' => 0, 'timearchived' => $now];
+        mod_lesson::reset($this->user->id, $course, $config);
         $this->assertFalse($DB->record_exists($originaltable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
         $this->assertFalse($DB->record_exists($archivetable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
 
         $this->attempt_lesson();
-        mod_lesson::reset($this->user->id, $course, (object)['lesson' => 1, 'archivelesson' => 1]);
+        $config = (object)['lesson' => 1, 'archivelesson' => 1, 'timearchived' => $now];
+        mod_lesson::reset($this->user->id, $course, $config);
         $this->assertFalse($DB->record_exists($originaltable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
         $this->assertTrue($DB->record_exists($archivetable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
     }
