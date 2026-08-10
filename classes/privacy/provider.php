@@ -224,7 +224,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
         $collection->add_database_table('local_recompletion_archived', [
             'userid' => 'privacy:metadata:userid',
-            'courseid' => 'privacy:metadata:courseid',
+            'courseid' => 'privacy:metadata:course',
             'timearchived' => 'privacy:metadata:local_recompletion:timearchived',
         ], 'privacy:metadata:local_recompletion_archived');
 
